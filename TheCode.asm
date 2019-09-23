@@ -212,6 +212,10 @@ resetMinutesTensPlace:
 	cp r27,r30; compare
 	brsh resetHoursOnesPlace; branch if same or higher, 
 
+	ldi r30,0x04
+	cp r27,r30;
+	brsh CheckIfNeedToReset; branch if same or higher, 
+
 	jmp tog;
 
 	
@@ -224,7 +228,7 @@ resetHoursOnesPlace:
 	inc r28;
 
 	
-	ldi r30,0x06; load 9 in so we can compare it
+	ldi r30,0x02; load 9 in so we can compare it
 	cp r28,r30; compare
 	brsh resetHoursTensPlace; branch if same or higher, 
 
@@ -236,25 +240,18 @@ resetHoursTensPlace:
 	ldi r24,0x00;
 	ldi r25,0x00; // minutes ones
 	ldi r26,0x00; // minutes tens
-	ldi r27,0x00; // hours ones
-	ldi r28,0x00; // hours tens
-	inc r28;
-
-	
-	ldi r30,0x02; load 9 in so we can compare it
-	cp r28,r30; compare
-	brsh CheckIfNeedToReset; branch if same or higher, 
+	ldi r27,0x00
 
 	jmp tog;
 
 CheckIfNeedToReset: 
 
-	ldi r30,0x04; load 9 in so we can compare it
-	cp r27,r30; compare
+	ldi r30,0x02; load 9 in so we can compare it
+	cp r28,r30; compare
 	brsh ResetToZero; branch if same or higher, 
 
 	
-	jmp tog;
+	jmp resetHoursOnesPlace;
 
 ResetToZero:
 	ldi r23,0x00 ;seconds one's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
