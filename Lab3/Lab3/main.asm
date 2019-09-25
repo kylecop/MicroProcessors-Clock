@@ -1,4 +1,3 @@
-
 .org 0x100 ; create 7SEG CODE TABLE at address 0x100 (word address, which will be byte address of 200)
 .DB     0b01000000,0b01111001,0b0100100,0b00110000,0b00011001,0b00010010,0b00000010,0b01111000,0b00000000,0b00011000,0b00000001,0b00000010,0b00000100,0b00001000,0b00010000,0b00100000
 //            0   ,   1      ,   2     ,     3    ,    4     ,    5     ,    6     ,    7     ,    8     ,     9    , A digit 1, B digit 2, C digit 3, D digit 4, E digit 5, F digit 6
@@ -22,10 +21,10 @@ start:
 	ldi r28,0x02 ;hours ten's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
 
 tog:
-	LDI R22, 8;
+	LDI R22, 1;
 	
-	LOP_1:LDI R21, 10;
-		LOP_2:LDI R20, 10;
+	LOP_1:LDI R21, 1;
+		LOP_2:LDI R20, 1;
 			LOP_3:
 				
 				ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
@@ -208,7 +207,7 @@ resetMinutesTensPlace:
 	ldi r26,0x00;
 	inc r27;
 
-	ldi r30,0x09; load 9 in so we can compare it
+	ldi r30,0x0A; load 9 in so we can compare it
 	cp r27,r30; compare
 	brsh resetHoursOnesPlace; branch if same or higher, 
 
@@ -251,7 +250,7 @@ CheckIfNeedToReset:
 	brsh ResetToZero; branch if same or higher, 
 
 	
-	jmp resetHoursOnesPlace;
+	jmp tog;
 
 ResetToZero:
 	ldi r23,0x00 ;seconds one's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
