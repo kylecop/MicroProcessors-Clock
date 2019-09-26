@@ -1,14 +1,12 @@
 .org 0x100 ; create 7SEG CODE TABLE at address 0x100 (word address, which will be byte address of 200)
 .DB     0b01000000,0b01111001,0b0100100,0b00110000,0b00011001,0b00010010,0b00000010,0b01111000,0b00000000,0b00011000,0b00000001,0b00000010,0b00000100,0b00001000,0b00010000,0b00100000
 //            0   ,   1      ,   2     ,     3    ,    4     ,    5     ,    6     ,    7     ,    8     ,     9    , A digit 1, B digit 2, C digit 3, D digit 4, E digit 5, F digit 6
-// test change in the atmel studio :)
 // 0b0GFEDCBA
-//	   G   F  E  D  C   B    A
-//   (15)(11)(5)(3)(13)(16)(14) THIS FOR THE LED
+
+
 //   https://www.microchip.com/webdoc/avrassembler/avrassembler.wb_instruction_list.html
 
 
-; Replace with your application code
 start:
     LDI R16, 0xFF ; load 1's into R16
 	OUT DDRB, R16 ; output 1's to configure DDRB as "output" port
@@ -26,14 +24,8 @@ tog:
 	LOP_1:LDI R21, 1;
 		LOP_2:LDI R20, 1;
 			LOP_3:
-				
-				ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
-				ldi zl,00 ; load low byte of z register with low hex portion of table address
-				add zl,r23 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
-				lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
-
+				call Send7SegmentsToR23
 				call TurnOnFirstDigit
-		   		out PORTB, r19
 				
 				call LoopDelay
 
@@ -99,6 +91,14 @@ tog:
 	
 	inc r23; increase seconds one's place, this should be happening at 1Hz
 	JMP tog; go to tog
+
+Send7SegmentsToR23:
+	ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
+	ldi zl,00 ; load low byte of z register with low hex portion of table address
+	add zl,r23 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
+	lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
+	out PORTB, r19
+	ret
 
 TurnOnFirstDigit:
 	; first digit code
