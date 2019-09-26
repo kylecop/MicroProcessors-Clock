@@ -8,15 +8,15 @@
 
 
 start:
-    LDI R16, 0xFF ; load 1's into R16
+    LDI R16, 0xFF ; load 1's into R16, needed to configure the output port
 	OUT DDRB, R16 ; output 1's to configure DDRB as "output" port
 	OUT DDRC, R16 ; output 1's to configure DDRC as "output" port
-	ldi r23,0x08 ;seconds one's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
-	ldi r24,0x05 ;seconds ten's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
-	ldi r25,0x08 ;minutes one's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
-	ldi r26,0x05 ;minutes ten's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
-	ldi r27,0x03 ;hours ones's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
-	ldi r28,0x02 ;hours ten's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
+	ldi r23,0x08 ;seconds one's place, load r23 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
+	ldi r24,0x05 ;seconds ten's place, load r24 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
+	ldi r25,0x08 ;minutes one's place, load r25 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
+	ldi r26,0x05 ;minutes ten's place, load r26 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
+	ldi r27,0x03 ;hours ones's place, load r27 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
+	ldi r28,0x02 ;hours ten's place, load r28 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
 
 tog:
 	LDI R22, 1;
@@ -24,16 +24,16 @@ tog:
 	LOP_1:LDI R21, 1;
 		LOP_2:LDI R20, 1;
 			LOP_3:
-				call Send7SegmentsToR23
 				call TurnOnFirstDigit
+				call Send7SegmentsFromR23
 				
 				call LoopDelay
 
+				// 7Segments from R24...
 				ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
 				ldi zl,00 ; load low byte of z register with low hex portion of table address
 				add zl,r24 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
 				lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
-
 				call TurnOnSecondDigit
 				out PORTB, r19
 				
@@ -92,7 +92,7 @@ tog:
 	inc r23; increase seconds one's place, this should be happening at 1Hz
 	JMP tog; go to tog
 
-Send7SegmentsToR23:
+Send7SegmentsFromR23:
 	ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
 	ldi zl,00 ; load low byte of z register with low hex portion of table address
 	add zl,r23 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
