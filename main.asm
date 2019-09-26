@@ -24,10 +24,11 @@ tog:
 	LOP_1:LDI R21, 1;
 		LOP_2:LDI R20, 1;
 			LOP_3:
-				call TurnOnFirstDigit
+				call TurnOnFirstDigit      // the Digit needs to be powered up when you send the 7Segment power
 				call Send7SegmentsFromR23
 				
-				call LoopDelay
+				call LoopDelay  // This delay is needed between lighting up digits, if there wasn't a delay then
+								// the numbers will show on top of each other on however many digits you light up
 
 				// 7Segments from R24...
 				ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
