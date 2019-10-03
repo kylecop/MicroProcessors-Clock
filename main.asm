@@ -16,7 +16,7 @@ start:
     LDI R16, 0xFF ; load 1's into R16
 	OUT DDRB, R16 ; output 1's to configure DDRB as "output" port
 	OUT DDRC, R16 ; output 1's to configure DDRC as "output" port
-	
+	CBI DDRD,6
 
 	ldi r23,0x08 ;seconds one's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
 	ldi r24,0x05 ;seconds ten's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
@@ -235,10 +235,10 @@ freeze:
 	call DisplayAll
 
 	sei
-	
-	LDI R16, 0x00;
-	OUT DDRD, R16;
-	IN R16, PIND;
+
+	SBIC PIND,5;
+	jmp IncrementSeconds
+
 	cp r17,r16 // check if not frozen
 	breq togjump
 	jmp freeze
@@ -246,6 +246,14 @@ freeze:
 togjump:
 	ldi r17,0x00
 	jmp tog
+
+IncrementSeconds:
+	inc r23; increase seconds one's place, this should be happening at 1Hz
+	//ldi r30,0x09; load 9 in so we can compare it
+	//cp r23,r30; compare
+	//brsh timingSequence; branch if same or higher,  https://www.microchip.com/webdoc/avrassembler/avrassembler.wb_instruction_list.html
+	jmp freeze
+
 
 DisplayAll:
 	ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
