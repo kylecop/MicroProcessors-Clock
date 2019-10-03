@@ -16,6 +16,8 @@ start:
     LDI R16, 0xFF ; load 1's into R16
 	OUT DDRB, R16 ; output 1's to configure DDRB as "output" port
 	OUT DDRC, R16 ; output 1's to configure DDRC as "output" port
+	
+
 	ldi r23,0x08 ;seconds one's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
 	ldi r24,0x05 ;seconds ten's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
 	ldi r25,0x08 ;minutes one's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
@@ -220,79 +222,86 @@ ResetToZero:
 	ldi r28,0x00 ;hours ten's place, load r16 with BCD(hex) value of the digit to be converted (digit 7 is used as an example)
 	jmp tog;
 
-	pause:
+pause:
 	ldi r16, 0x00
-	cp r17,r16
-	breq freeze
+	cp r17,r16 // check if not frozen
+	breq freeze /// if not froze, loop freeze
 	ldi r16, 0x01
-	cp r17,r16
-	breq togjump
+	cp r17,r16  // check if frozen
+	breq togjump  // if frozen, unfreeze and jump to main
 
-	freeze:
+freeze:
 	ldi r17, 0x01
 	call DisplayAll
+
 	sei
+	
+	LDI R16, 0x00;
+	OUT DDRD, R16;
+	IN R16, PIND;
+	cp r17,r16 // check if not frozen
+	breq togjump
 	jmp freeze
 
-	togjump:
+togjump:
 	ldi r17,0x00
 	jmp tog
 
-	DisplayAll:
-				ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
-				ldi zl,00 ; load low byte of z register with low hex portion of table address
-				add zl,r23 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
-				lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
+DisplayAll:
+	ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
+	ldi zl,00 ; load low byte of z register with low hex portion of table address
+	add zl,r23 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
+	lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
 
-				call TurnOnFirstDigit
-		   		out PORTB, r19
+	call TurnOnFirstDigit
+	out PORTB, r19
 				
-				call LoopDelay
+	call LoopDelay
 
-				ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
-				ldi zl,00 ; load low byte of z register with low hex portion of table address
-				add zl,r24 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
-				lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
+	ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
+	ldi zl,00 ; load low byte of z register with low hex portion of table address
+	add zl,r24 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
+	lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
 
-				call TurnOnSecondDigit
-				out PORTB, r19
+	call TurnOnSecondDigit
+	out PORTB, r19
 				
-				call LoopDelay
+	call LoopDelay
 				
-				ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
-				ldi zl,00 ; load low byte of z register with low hex portion of table address
-				add zl,r25 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
-				lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
+	ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
+	ldi zl,00 ; load low byte of z register with low hex portion of table address
+	add zl,r25 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
+	lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
 
-				call TurnOnThirdDigit
-				out PORTB, r19
-				call LoopDelay
+	call TurnOnThirdDigit
+	out PORTB, r19
+	call LoopDelay
 
-				ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
-				ldi zl,00 ; load low byte of z register with low hex portion of table address
-				add zl,r26 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
-				lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
+	ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
+	ldi zl,00 ; load low byte of z register with low hex portion of table address
+	add zl,r26 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
+	lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
 
-				call TurnOnFourthDigit
-				out PORTB, r19
-				call LoopDelay
+	call TurnOnFourthDigit
+	out PORTB, r19
+	call LoopDelay
 
 				
-				ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
-				ldi zl,00 ; load low byte of z register with low hex portion of table address
-				add zl,r27 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
-				lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
+	ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
+	ldi zl,00 ; load low byte of z register with low hex portion of table address
+	add zl,r27 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
+	lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
 
-				call TurnOnFifthDigit
-				out PORTB, r19
-				call LoopDelay
+	call TurnOnFifthDigit
+	out PORTB, r19
+	call LoopDelay
 				
-				ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
-				ldi zl,00 ; load low byte of z register with low hex portion of table address
-				add zl,r28 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
-				lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
+	ldi zh,02        ; load high byte of z register with high hex portion of 7SEG CODE TABLE address (x2, since it is byte addressing)
+	ldi zl,00 ; load low byte of z register with low hex portion of table address
+	add zl,r28 ; add the BCD  value to be converted to low byte of 7SEG CODE TABLE to create an offset numerically equivalent to BCD value 
+	lpm r19,z ; load z into r17 from program memory from7SEG CODE TABLE using modified z register as pointer
 
-				call TurnOnSixthDigit
-				out PORTB, r19
-				call LoopDelay
-				ret
+	call TurnOnSixthDigit
+	out PORTB, r19
+	call LoopDelay
+	ret
