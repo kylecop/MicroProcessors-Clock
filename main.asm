@@ -1,4 +1,3 @@
-
 .org 0x100 ; create 7SEG CODE TABLE at address 0x100 (word address, which will be byte address of 200)
 .DB     0b01000000,0b01111001,0b0100100,0b00110000,0b00011001,0b00010010,0b00000010,0b01111000,0b00000000,0b00011000,0b00000001,0b00000010,0b00000100,0b00001000,0b00010000,0b00100000
 //            0   ,   1      ,   2     ,     3    ,    4     ,    5     ,    6     ,    7     ,    8     ,     9    , A digit 1, B digit 2, C digit 3, D digit 4, E digit 5, F digit 6
@@ -37,10 +36,10 @@ start:
 
 tog:
 	sei
-	LDI R22, 1;
+	LDI R22, 10;
 	
-	LOP_1:LDI R21, 1;
-		LOP_2:LDI R20, 1;
+	LOP_1:LDI R21, 10;
+		LOP_2:LDI R20, 8;
 			LOP_3:
 				call DisplayAll
 
