@@ -66,6 +66,7 @@ tog:
 	JMP tog; go to tog
 
 IncrementSecondsjmp:
+	ldi r20, 0x01
 	jmp IncrementSeconds
 
 TurnOnFirstDigit:
@@ -243,6 +244,7 @@ freeze:
 
 	sei
 
+	ldi r20, 0x00
 	SBIC PIND,5;
 	jmp IncrementSeconds
 
@@ -259,9 +261,15 @@ IncrementSeconds:
 	ldi r30,0x09; load 9 in so we can compare it
 	cp r23,r30; compare
 	brsh resetSeconds1sPlacejmp; branch if same or higher,  https://www.microchip.com/webdoc/avrassembler/avrassembler.wb_instruction_list.html
-	inc r23
+	ldi r16, 0x00
+	cp r20, r16
+	breq incSec
 
 	jmp freeze
+
+incSec:
+		inc r23
+		jmp freeze
 
 
 resetSeconds1sPlacejmp:
