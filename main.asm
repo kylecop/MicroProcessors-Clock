@@ -38,6 +38,10 @@ start:
 
 tog:
 	sei
+	ldi r16, 0x01;
+	cp r17,r16;
+	breq IncrementSecondsjmp
+
 	LDI R22, 10;
 	
 	LOP_1:LDI R21, 10;
@@ -60,6 +64,9 @@ tog:
 	
 	inc r23; increase seconds one's place, this should be happening at 1Hz
 	JMP tog; go to tog
+
+IncrementSecondsjmp:
+	jmp IncrementSeconds
 
 TurnOnFirstDigit:
 	; first digit code
@@ -239,8 +246,6 @@ freeze:
 	SBIC PIND,5;
 	jmp IncrementSeconds
 
-	cp r17,r16 // check if not frozen
-	breq togjump
 	jmp freeze
 
 togjump:
@@ -248,11 +253,19 @@ togjump:
 	jmp tog
 
 IncrementSeconds:
-	inc r23; increase seconds one's place, this should be happening at 1Hz
-	//ldi r30,0x09; load 9 in so we can compare it
-	//cp r23,r30; compare
-	//brsh timingSequence; branch if same or higher,  https://www.microchip.com/webdoc/avrassembler/avrassembler.wb_instruction_list.html
+	SBIC PIND,5
+	jmp IncrementSeconds
+
+	ldi r30,0x09; load 9 in so we can compare it
+	cp r23,r30; compare
+	brsh resetSeconds1sPlacejmp; branch if same or higher,  https://www.microchip.com/webdoc/avrassembler/avrassembler.wb_instruction_list.html
+	inc r23
+
 	jmp freeze
+
+
+resetSeconds1sPlacejmp:
+	jmp resetSeconds1sPlace
 
 
 DisplayAll:
