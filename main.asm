@@ -42,10 +42,10 @@ tog:
 	cp r17,r16;
 	breq IncrementSecondsjmp
 
-	LDI R22, 10;
+	LDI R22, 1;
 	
-	LOP_1:LDI R21, 10;
-		LOP_2:LDI R20, 8;
+	LOP_1:LDI R21, 1;
+		LOP_2:LDI R20, 1;
 			LOP_3:
 				call DisplayAll
 
@@ -56,6 +56,7 @@ tog:
 		DEC R22;
 	BRNE LOP_1;
 
+	ldi r21, 0x00
 	ldi r30,0x09; load 9 in so we can compare it
 	cp r23,r30; compare
 	brsh resetSeconds1sPlace; branch if same or higher,  https://www.microchip.com/webdoc/avrassembler/avrassembler.wb_instruction_list.html
@@ -85,6 +86,11 @@ LoopDelay:
 	BRNE LOOP1;
 	ret
 
+resetAllSeconds:
+	ldi r23,0x00;
+	ldi r24,0x00;
+	ret
+
 resetSeconds1sPlace:
 	ldi r23,0x00;
 	inc r24;
@@ -98,7 +104,14 @@ resetSeconds1sPlace:
 resetSecondsTensPlace:
 	ldi r23,0x00;
 	ldi r24,0x00;
+
+	ldi r16,0x01
+	cp r21,r16
+	breq freezejmp
+
 	inc r25;
+
+
 
 	
 	ldi r30,0x09; load 9 in so we can compare it
@@ -108,10 +121,15 @@ resetSecondsTensPlace:
 
 	
 resetMinutes1sPlace:
-	ldi r23,0x00;
-	ldi r24,0x00;
 	ldi r25,0x00;
 	inc r26;
+
+	ldi r16,0x01
+	cp r21,r16
+	breq minutesResetCheck
+
+
+	call resetAllSeconds
 	
 	ldi r30,0x06; load 9 in so we can compare it
 	cp r26,r30; compare
@@ -119,12 +137,21 @@ resetMinutes1sPlace:
 
 	jmp tog;
 
+minutesResetCheck:
+	ldi r30,0x06; load 6 in so we can compare it
+	cp r26,r30; compare
+	brsh resetMinutesTensPlace; branch if same or higher,
+	jmp freezejmp
 	
 resetMinutesTensPlace:
-	ldi r23,0x00;
-	ldi r24,0x00;
 	ldi r25,0x00;
 	ldi r26,0x00;
+
+	ldi r16,0x01
+	cp r21,r16
+	breq freezejmp
+
+	call resetAllSeconds
 	inc r27;
 
 	ldi r30,0x0A; load 9 in so we can compare it
@@ -137,14 +164,19 @@ resetMinutesTensPlace:
 
 	jmp tog;
 
-	
+freezejmp:
+	jmp freeze
+
 resetHoursOnesPlace:
-	ldi r23,0x00;
-	ldi r24,0x00;
-	ldi r25,0x00;
-	ldi r26,0x00;
+
 	ldi r27,0x00;
 	inc r28;
+
+	ldi r16,0x01
+	cp r21,r16
+	breq hoursResetCheck
+
+	call resetAllMin
 
 	
 	ldi r30,0x02; load 9 in so we can compare it
@@ -153,12 +185,21 @@ resetHoursOnesPlace:
 
 	jmp tog;
 
-	
-resetHoursTensPlace:
+hoursResetCheck:
+	ldi r30,0x02; load 9 in so we can compare it
+	cp r28,r30; compare
+	brsh resetHoursTensPlace; branch if same or higher,
+	jmp freezejmp
+
+resetAllMin:
 	ldi r23,0x00;
 	ldi r24,0x00;
-	ldi r25,0x00; // minutes ones
-	ldi r26,0x00; // minutes tens
+	ldi r25,0x00;
+	ldi r26,0x00;
+	ret
+
+resetHoursTensPlace:
+	call resetAllmin
 	ldi r27,0x00
 
 	jmp tog;
@@ -196,6 +237,7 @@ freeze:
 	sei
 
 	ldi r20, 0x00
+	ldi r21, 0x00
 	SBIC PIND,5;
 	jmp IncrementSeconds
 	SBIC PIND,6;
@@ -228,6 +270,7 @@ incSec:
 
 
 resetSeconds1sPlacejmp:
+	ldi r21, 0x01
 	jmp resetSeconds1sPlace
 	
 IncrementMinutes:
@@ -249,6 +292,7 @@ incMin:
 
 
 resetMinutes1sPlacejmp:
+	ldi r21, 0x01
 	jmp resetMinutes1sPlace
 	
 
@@ -256,7 +300,10 @@ resetMinutes1sPlacejmp:
 IncrementHours:
 	SBIC PIND,7
 	jmp IncrementHours
-
+	
+	ldi r30,0x03
+	cp r27,r30
+	breq checkifneedtoresetjmp
 	ldi r30,0x09; load 9 in so we can compare it
 	cp r27,r30; compare
 	brsh resetHours1sPlacejmp; branch if same or higher,  https://www.microchip.com/webdoc/avrassembler/avrassembler.wb_instruction_list.html
@@ -270,8 +317,13 @@ incHr:
 		inc r27
 		jmp freeze
 
+checkifneedtoresetjmp:
+	ldi r20,0x01
+	inc r27
+	jmp checkifneedtoreset
 
 resetHours1sPlacejmp:
+	ldi r21, 0x01
 	jmp resetHoursOnesPlace
 
 
